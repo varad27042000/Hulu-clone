@@ -6,10 +6,22 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MoonIcon, SunIcon, SearchIcon } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { setTheme, theme } = useTheme();
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -25,15 +37,18 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <div className={`flex items-center ${isSearchOpen ? 'w-full' : ''}`}>
+          <form onSubmit={handleSearch} className={`flex items-center ${isSearchOpen ? 'w-full' : ''}`}>
             {isSearchOpen && (
               <Input
                 type="search"
                 placeholder="Search..."
                 className="h-9 w-full md:w-[300px] lg:w-[400px]"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             )}
             <Button
+              type={isSearchOpen ? "submit" : "button"}
               variant="ghost"
               size="icon"
               className="ml-2"
@@ -41,7 +56,7 @@ export default function Header() {
             >
               <SearchIcon className="h-5 w-5" />
             </Button>
-          </div>
+          </form>
           <Button
             variant="ghost"
             size="icon"
@@ -53,7 +68,9 @@ export default function Header() {
               <SunIcon className="h-5 w-5" />
             )}
           </Button>
-          <Button>Sign In</Button>
+          <Link href="/sign-in">
+            <Button>Sign In</Button>
+          </Link>
         </div>
       </div>
     </header>

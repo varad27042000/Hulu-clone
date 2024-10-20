@@ -1,9 +1,8 @@
 "use client"
-
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from '@/components/ui/button';
 import { PlayIcon, PlusIcon } from 'lucide-react';
+import { useEffect, useState } from "react";
 import { fetchTrending } from '@/lib/tmdb';
 
 interface Content {
@@ -14,11 +13,11 @@ interface Content {
   poster_path: string;
 }
 
-export default function ContentGrid() {
+export default function MoviesPage() {
   const [content, setContent] = useState<Content[]>([]);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
 
   useEffect(() => {
     async function loadContent() {
@@ -43,11 +42,10 @@ export default function ContentGrid() {
   if (error) {
     return <div className="container mx-auto py-12 text-red-500">{error}</div>;
   }
-
-  return (
-    <div className="container mx-auto py-12">
-      <h2 className="mb-6 text-3xl font-bold">Trending Now</h2>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    return (
+      <div className="container mx-auto py-12">
+        <h1 className="text-3xl font-bold mb-6">Movies</h1>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {content.map((item) => (
           <Card
             key={item.id}
@@ -64,6 +62,7 @@ export default function ContentGrid() {
                 />
                 {hoveredId === item.id && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 transition-opacity">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 transition-opacity">
                     <Button variant="secondary" size="icon" className="mr-2" title="Play"> {/* Added title attribute for tooltip */}
   <PlayIcon className="h-6 w-6" />
 </Button>
@@ -71,6 +70,7 @@ export default function ContentGrid() {
   <PlusIcon className="h-6 w-6" />
 </Button>
 
+                  </div>
                   </div>
                 )}
               </div>
@@ -83,5 +83,6 @@ export default function ContentGrid() {
         ))}
       </div>
     </div>
-  );
-}
+      
+    );
+  }

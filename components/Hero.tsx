@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function Hero() {
   return (
@@ -14,7 +15,9 @@ export default function Hero() {
       <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white">
         <h1 className="mb-4 text-5xl font-bold">Welcome to Hulu Clone</h1>
         <p className="mb-8 text-xl">Watch thousands of TV shows and movies.</p>
-        <Button size="lg">Start Your Free Trial</Button>
+        <Link href="/free-trial">
+          <Button size="lg">Start Your Free Trial</Button>
+        </Link>
       </div>
     </div>
   );
