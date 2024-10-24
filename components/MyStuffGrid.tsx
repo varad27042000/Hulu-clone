@@ -3,61 +3,46 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PlayIcon } from 'lucide-react';
-import { fetchTrending } from '@/lib/tmdb';
+import { PlayIcon, XIcon } from 'lucide-react';
 import VideoModal from './VideoModal';
-import AddToMyStuffButton from './AddToMyStuffButton';
 
-interface Content {
+interface SavedContent {
   id: number;
-  title?: string;
-  name?: string;
+  title: string;
   poster_path: string;
   media_type: string;
 }
 
-export default function ContentGrid() {
-  const [content, setContent] = useState<Content[]>([]);
+export default function MyStuffGrid() {
+  const [savedContent, setSavedContent] = useState<SavedContent[]>([]);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
-  const [selectedContent, setSelectedContent] = useState<Content | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedContent, setSelectedContent] = useState<SavedContent | null>(null);
 
   useEffect(() => {
-    async function fetchContent() {
-      try {
-        const data = await fetchTrending();
-        setContent(data.results);
-      } catch (err) {
-        console.error('Error fetching trending content:', err);
-        setError('Failed to fetch trending content. Please try again later.');
-      } finally {
-        setIsLoading(false);
-      }
+    const storedContent = localStorage.getItem('myStuff');
+    if (storedContent) {
+      setSavedContent(JSON.parse(storedContent));
     }
-    fetchContent();
   }, []);
 
-  const handlePlay = (item: Content) => {
-    setSelectedContent(item);
+  const handlePlay = (content: SavedContent) => {
+    setSelectedContent(content);
   };
 
-  if (isLoading) {
-    return <div className="container mx-auto py-12">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="container mx-auto py-12 text-red-500">{error}</div>;
-  }
+  const handleRemove = (id: number) => {
+    const updatedContent = savedContent.filter(item => item.id !== id);
+    setSavedContent(updatedContent);
+    localStorage.setItem('myStuff', JSON.stringify(updatedContent));
+  };
 
   return (
-    <div className="container mx-auto py-12">
-      <h2 className="mb-6 text-3xl font-bold">Trending Now</h2>
-      {content.length === 0 ? (
-        <p>No content available. Please try again later.</p>
+    <div className="container mx-auto ">
+     <p className="text-xl mb-8">Explore Your exclusive Watchlist.</p>
+      {savedContent.length === 0 ? (
+        <p>You haven't saved any content yet. Start exploring and add some favorites!</p>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {content.map((item) => (
+          {savedContent.map((item) => (
             <Card
               key={item.id}
               className="overflow-hidden"
@@ -68,7 +53,7 @@ export default function ContentGrid() {
                 <div className="relative aspect-[2/3]">
                   <img
                     src={item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '/placeholder.jpg'}
-                    alt={item.title || item.name}
+                    alt={item.title}
                     className="h-full w-full object-cover"
                   />
                   {hoveredId === item.id && (
@@ -76,13 +61,15 @@ export default function ContentGrid() {
                       <Button variant="secondary" size="icon" className="mr-2" onClick={() => handlePlay(item)}>
                         <PlayIcon className="h-6 w-6" />
                       </Button>
-                      <AddToMyStuffButton content={item} />
+                      <Button variant="secondary" size="icon" onClick={() => handleRemove(item.id)}>
+                        <XIcon className="h-6 w-6" />
+                      </Button>
                     </div>
                   )}
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col items-start p-4">
-                <h3 className="text-lg font-semibold">{item.title || item.name}</h3>
+                <h3 className="text-lg font-semibold">{item.title}</h3>
                 <p className="text-sm text-gray-500">{item.media_type}</p>
               </CardFooter>
             </Card>
@@ -93,7 +80,7 @@ export default function ContentGrid() {
         <VideoModal
           isOpen={!!selectedContent}
           onClose={() => setSelectedContent(null)}
-          title={selectedContent.title || selectedContent.name || ''}
+          title={selectedContent.title}
           mediaType={selectedContent.media_type}
         />
       )}

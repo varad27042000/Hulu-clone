@@ -19,7 +19,7 @@ export default function FreeTrialPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Free trial started with:', { email, password, name, plan });
-    router.push('/');
+    router.push('/tv-shows');
   };
 
   return (

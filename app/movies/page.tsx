@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { PlayIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { fetchTrending } from '@/lib/tmdb';
+import VideoModal from "@/components/VideoModal";
 
 interface Content {
   id: number;
@@ -18,6 +19,10 @@ export default function MoviesPage() {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedContent, setSelectedContent] = useState<Content | null>(null);
+  const handlePlay = (item: Content) => {
+    setSelectedContent(item);
+  };
 
   useEffect(() => {
     async function loadContent() {
@@ -44,7 +49,9 @@ export default function MoviesPage() {
   }
     return (
       <div className="container mx-auto py-12">
-        <h1 className="text-3xl font-bold mb-6">Movies</h1>
+        
+        <h1 className="text-4xl font-bold mb-8">Movies</h1>
+        <p className="text-xl mb-8">Popular Movies on Hulu.</p>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {content.map((item) => (
           <Card
@@ -63,10 +70,10 @@ export default function MoviesPage() {
                 {hoveredId === item.id && (
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 transition-opacity">
                     <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70 transition-opacity">
-                    <Button variant="secondary" size="icon" className="mr-2" title="Play"> {/* Added title attribute for tooltip */}
+                    <Button variant="secondary" size="icon" className="mr-2" title="Play" onClick={() => handlePlay(item)}> {/* Added title attribute for tooltip */}
   <PlayIcon className="h-6 w-6" />
 </Button>
-<Button variant="secondary" size="icon" title="Add to My Stuff"> {/* Added title attribute for tooltip */}
+<Button variant="secondary" size="icon" title="Add to My Stuff"> 
   <PlusIcon className="h-6 w-6" />
 </Button>
 
@@ -82,6 +89,14 @@ export default function MoviesPage() {
           </Card>
         ))}
       </div>
+      {selectedContent && (
+        <VideoModal
+          isOpen={!!selectedContent}
+          onClose={() => setSelectedContent(null)}
+          title={selectedContent.title || selectedContent.name || ''}
+          mediaType={selectedContent.media_type}
+        />
+      )}
     </div>
       
     );
